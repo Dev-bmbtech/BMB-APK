@@ -7,10 +7,14 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- Loader -->
   <div class="page-loader" id="pageLoader">
-    <div class="loader-spin"></div>
-    <div>Loading APK Downloader...</div>
+    <div class="loader-circle">
+      <span class="loader-text">LOAD</span>
+    </div>
   </div>
+
+  <!-- Header -->
   <header class="header">
     <div class="logo">B.M.B APK</div>
     <form class="search-form" onsubmit="return false;">
@@ -18,11 +22,20 @@
       <button id="searchBtn" type="submit">Search</button>
     </form>
   </header>
+
+  <!-- Content -->
   <div class="container">
     <div class="results" id="results"></div>
     <section id="apkSection"></section>
     <div class="error" id="error"></div>
   </div>
+
   <script src="main.js"></script>
+  <script>
+    // Kuondoa loader baada ya page kupakia
+    window.addEventListener("load", () => {
+      document.getElementById("pageLoader").style.display = "none";
+    });
+  </script>
 </body>
 </html>
