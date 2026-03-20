@@ -1,3 +1,6 @@
+// BMB APK DOWNLOAD - Main JavaScript
+console.log("✅ BMB APK Download loaded");
+
 const API_BASE_URL = 'https://api.giftedtech.co.ke/api/download/apkdl';
 const API_KEY = 'gifted';
 
@@ -27,56 +30,97 @@ const TRENDING_APPS = [
 
 let currentDownloading = null;
 
-// Initialize page
-document.addEventListener('DOMContentLoaded', () => {
+// DOM Elements
+const drawer = document.getElementById("drawer");
+const menuToggle = document.getElementById("menu-toggle");
+const closeMenuBtn = document.getElementById("close-menu");
+const reveals = document.querySelectorAll(".reveal");
+const yearElement = document.getElementById("year");
+const searchInput = document.getElementById("searchInput");
+const searchBtn = document.getElementById("searchBtn");
+const searchSuggestions = document.getElementById("searchSuggestions");
+const appsGrid = document.getElementById("appsGrid");
+const searchResultsSection = document.getElementById("searchResultsSection");
+const searchResults = document.getElementById("searchResults");
+const resultCount = document.getElementById("resultCount");
+
+// Initialize
+document.addEventListener("DOMContentLoaded", function() {
+    console.log("🚀 BMB APK Download initialized");
+    
+    // Set year
+    if (yearElement) yearElement.textContent = new Date().getFullYear();
+    
+    // Menu
+    initMenu();
+    
+    // Scroll reveal
+    initScrollReveal();
+    
+    // Load trending apps
     loadTrendingApps();
-    setupEventListeners();
-    setupCursor();
+    
+    // Search events
+    setupSearchEvents();
 });
 
-function setupEventListeners() {
-    document.getElementById('searchBtn').addEventListener('click', searchApp);
-    document.getElementById('searchInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') searchApp();
-    });
-    document.getElementById('searchInput').addEventListener('input', showSuggestions);
-    document.querySelector('.menu-btn')?.addEventListener('click', toggleMobileMenu);
-}
-
-function setupCursor() {
-    const cursor = document.querySelector('.cursor-follower');
-    if (!cursor) return;
-    
-    document.addEventListener('mousemove', (e) => {
-        cursor.style.left = e.clientX + 'px';
-        cursor.style.top = e.clientY + 'px';
-    });
-    
-    document.addEventListener('mouseenter', () => {
-        cursor.style.display = 'block';
-    });
-    
-    document.addEventListener('mouseleave', () => {
-        cursor.style.display = 'none';
-    });
-}
-
-function toggleMobileMenu() {
-    const navLinks = document.querySelector('.nav-links');
-    navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
-}
-
-async function loadTrendingApps() {
-    const grid = document.getElementById('appsGrid');
-    const loadingSpinner = grid.querySelector('.loading-spinner');
-    
-    if (loadingSpinner) {
-        loadingSpinner.remove();
+// Menu Functions
+function initMenu() {
+    if (menuToggle) {
+        menuToggle.addEventListener("click", () => {
+            drawer.style.left = "0";
+        });
     }
     
-    grid.innerHTML = '';
+    if (closeMenuBtn) {
+        closeMenuBtn.addEventListener("click", closeMenu);
+    }
+}
+
+function closeMenu() {
+    if (drawer) drawer.style.left = "-100%";
+}
+
+// Scroll Reveal
+function initScrollReveal() {
+    function reveal() {
+        reveals.forEach(el => {
+            if (el.getBoundingClientRect().top < window.innerHeight - 100) {
+                el.classList.add("active");
+            }
+        });
+    }
+    reveal();
+    window.addEventListener("scroll", reveal);
+}
+
+// Search Events
+function setupSearchEvents() {
+    if (searchBtn) {
+        searchBtn.addEventListener("click", searchApp);
+    }
     
-    // Show first 100 trending apps
+    if (searchInput) {
+        searchInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") searchApp();
+        });
+        searchInput.addEventListener("input", showSuggestions);
+    }
+    
+    // Close suggestions when clicking outside
+    document.addEventListener("click", (e) => {
+        if (searchSuggestions && !searchSuggestions.contains(e.target) && e.target !== searchInput) {
+            searchSuggestions.classList.remove("active");
+        }
+    });
+}
+
+// Load Trending Apps
+async function loadTrendingApps() {
+    if (!appsGrid) return;
+    
+    appsGrid.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i><p>Loading trending apps...</p></div>';
+    
     const trendingToShow = TRENDING_APPS.slice(0, 100);
     
     for (const appName of trendingToShow) {
@@ -84,22 +128,22 @@ async function loadTrendingApps() {
             const appData = await fetchAppData(appName);
             if (appData && appData.success) {
                 const appCard = createAppCard(appData.result, appName);
-                grid.appendChild(appCard);
+                appsGrid.appendChild(appCard);
             } else {
                 const fallbackCard = createFallbackCard(appName);
-                grid.appendChild(fallbackCard);
+                appsGrid.appendChild(fallbackCard);
             }
         } catch (error) {
             console.error(`Error loading ${appName}:`, error);
             const fallbackCard = createFallbackCard(appName);
-            grid.appendChild(fallbackCard);
+            appsGrid.appendChild(fallbackCard);
         }
         
-        // Small delay to prevent rate limiting
         await new Promise(resolve => setTimeout(resolve, 100));
     }
 }
 
+// Fetch App Data from API
 async function fetchAppData(appName) {
     try {
         const url = `${API_BASE_URL}?apikey=${API_KEY}&appName=${encodeURIComponent(appName)}`;
@@ -112,9 +156,10 @@ async function fetchAppData(appName) {
     }
 }
 
+// Create App Card
 function createAppCard(appData, appName) {
-    const card = document.createElement('div');
-    card.className = 'app-card';
+    const card = document.createElement("div");
+    card.className = "app-card";
     
     const iconHtml = appData.appicon 
         ? `<img src="${appData.appicon}" alt="${appData.appname}" onerror="this.src='https://via.placeholder.com/70?text=${appName.charAt(0)}'">`
@@ -133,15 +178,16 @@ function createAppCard(appData, appName) {
         </button>
     `;
     
-    const downloadBtn = card.querySelector('.download-btn');
-    downloadBtn.addEventListener('click', () => downloadApp(downloadBtn.dataset.app, downloadBtn.dataset.url));
+    const downloadBtn = card.querySelector(".download-btn");
+    downloadBtn.addEventListener("click", () => downloadApp(downloadBtn.dataset.app, downloadBtn.dataset.url));
     
     return card;
 }
 
+// Create Fallback Card
 function createFallbackCard(appName) {
-    const card = document.createElement('div');
-    card.className = 'app-card';
+    const card = document.createElement("div");
+    card.className = "app-card";
     
     card.innerHTML = `
         <div class="app-icon">
@@ -152,45 +198,43 @@ function createFallbackCard(appName) {
             <i class="fas fa-user"></i> Available
         </div>
         <button class="download-btn" data-app="${escapeHtml(appName)}" data-url="">
-            <i class="fas fa-download"></i> Try Download
+            <i class="fas fa-download"></i> Download APK
         </button>
     `;
     
-    const downloadBtn = card.querySelector('.download-btn');
-    downloadBtn.addEventListener('click', () => searchAndDownload(appName));
+    const downloadBtn = card.querySelector(".download-btn");
+    downloadBtn.addEventListener("click", () => searchAndDownload(appName));
     
     return card;
 }
 
+// Search App
 async function searchApp() {
-    const searchTerm = document.getElementById('searchInput').value.trim();
+    const searchTerm = searchInput.value.trim();
     if (!searchTerm) {
-        showToast('Please enter an app name', 'warning');
+        showToast("Please enter an app name", "warning");
         return;
     }
     
-    const resultsGrid = document.getElementById('searchResults');
-    const resultsHeader = document.getElementById('searchResultsHeader');
+    if (!searchResultsSection || !searchResults) return;
     
-    resultsGrid.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i><p>Searching for ' + escapeHtml(searchTerm) + '...</p></div>';
-    resultsHeader.style.display = 'block';
+    searchResults.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i><p>Searching for ' + escapeHtml(searchTerm) + '...</p></div>';
+    searchResultsSection.style.display = "block";
     
     try {
         const appData = await fetchAppData(searchTerm);
         
-        resultsGrid.innerHTML = '';
+        searchResults.innerHTML = "";
         
         if (appData && appData.success && appData.result) {
-            const resultCount = document.getElementById('resultCount');
-            resultCount.textContent = '1';
-            
+            if (resultCount) resultCount.textContent = "1";
             const appCard = createAppCard(appData.result, searchTerm);
-            resultsGrid.appendChild(appCard);
+            searchResults.appendChild(appCard);
             
             // Scroll to results
-            resultsHeader.scrollIntoView({ behavior: 'smooth' });
+            searchResultsSection.scrollIntoView({ behavior: "smooth" });
         } else {
-            resultsGrid.innerHTML = `
+            searchResults.innerHTML = `
                 <div class="app-card" style="grid-column: 1/-1; text-align: center;">
                     <i class="fas fa-frown" style="font-size: 3rem; margin-bottom: 1rem;"></i>
                     <h3>No results found for "${escapeHtml(searchTerm)}"</h3>
@@ -199,57 +243,59 @@ async function searchApp() {
             `;
         }
     } catch (error) {
-        resultsGrid.innerHTML = `
+        searchResults.innerHTML = `
             <div class="app-card" style="grid-column: 1/-1; text-align: center;">
                 <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
                 <h3>Error searching for app</h3>
                 <p>Please try again later</p>
             </div>
         `;
-        console.error('Search error:', error);
+        console.error("Search error:", error);
     }
 }
 
+// Search and Download
 async function searchAndDownload(appName) {
-    showToast(`Searching for ${appName}...`, 'info');
+    showToast(`Searching for ${appName}...`, "info");
     
     try {
         const appData = await fetchAppData(appName);
         
         if (appData && appData.success && appData.result && appData.result.download_url) {
-            window.open(appData.result.download_url, '_blank');
-            showToast(`Downloading ${appName}...`, 'success');
+            window.open(appData.result.download_url, "_blank");
+            showToast(`Downloading ${appName}...`, "success");
         } else {
-            showToast(`Could not find download link for ${appName}`, 'error');
+            showToast(`Could not find download link for ${appName}`, "error");
         }
     } catch (error) {
-        showToast('Download failed. Please try again.', 'error');
-        console.error('Download error:', error);
+        showToast("Download failed. Please try again.", "error");
+        console.error("Download error:", error);
     }
 }
 
+// Download App
 function downloadApp(appName, downloadUrl) {
     if (currentDownloading === appName) {
-        showToast('Download already in progress', 'warning');
+        showToast("Download already in progress", "warning");
         return;
     }
     
     if (downloadUrl) {
         currentDownloading = appName;
-        window.open(downloadUrl, '_blank');
-        showToast(`Starting download for ${appName}...`, 'success');
+        window.open(downloadUrl, "_blank");
+        showToast(`Starting download for ${appName}...`, "success");
         setTimeout(() => { currentDownloading = null; }, 5000);
     } else {
         searchAndDownload(appName);
     }
 }
 
+// Show Suggestions
 function showSuggestions() {
-    const input = document.getElementById('searchInput').value.toLowerCase().trim();
-    const suggestionsBox = document.getElementById('searchSuggestions');
+    const input = searchInput.value.toLowerCase().trim();
     
     if (!input) {
-        suggestionsBox.classList.remove('active');
+        searchSuggestions.classList.remove("active");
         return;
     }
     
@@ -258,35 +304,35 @@ function showSuggestions() {
     ).slice(0, 5);
     
     if (matches.length > 0) {
-        suggestionsBox.innerHTML = matches.map(match => 
+        searchSuggestions.innerHTML = matches.map(match => 
             `<div class="suggestion-item">${escapeHtml(match)}</div>`
-        ).join('');
-        suggestionsBox.classList.add('active');
+        ).join("");
+        searchSuggestions.classList.add("active");
         
-        // Add click handlers to suggestions
-        document.querySelectorAll('.suggestion-item').forEach(item => {
-            item.addEventListener('click', () => {
-                document.getElementById('searchInput').value = item.textContent;
-                suggestionsBox.classList.remove('active');
+        document.querySelectorAll(".suggestion-item").forEach(item => {
+            item.addEventListener("click", () => {
+                searchInput.value = item.textContent;
+                searchSuggestions.classList.remove("active");
                 searchApp();
             });
         });
     } else {
-        suggestionsBox.classList.remove('active');
+        searchSuggestions.classList.remove("active");
     }
 }
 
-function showToast(message, type = 'info') {
-    const existingToast = document.querySelector('.toast');
+// Show Toast Notification
+function showToast(message, type = "info") {
+    const existingToast = document.querySelector(".toast");
     if (existingToast) existingToast.remove();
     
-    const toast = document.createElement('div');
-    toast.className = 'toast';
+    const toast = document.createElement("div");
+    toast.className = "toast";
     
-    let icon = 'info-circle';
-    if (type === 'success') icon = 'check-circle';
-    if (type === 'error') icon = 'exclamation-circle';
-    if (type === 'warning') icon = 'exclamation-triangle';
+    let icon = "info-circle";
+    if (type === "success") icon = "check-circle";
+    if (type === "error") icon = "exclamation-circle";
+    if (type === "warning") icon = "exclamation-triangle";
     
     toast.innerHTML = `<i class="fas fa-${icon}"></i> <span>${escapeHtml(message)}</span>`;
     document.body.appendChild(toast);
@@ -296,18 +342,13 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
+// Escape HTML
 function escapeHtml(text) {
-    const div = document.createElement('div');
+    if (!text) return "";
+    const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
 }
 
-// Close suggestions when clicking outside
-document.addEventListener('click', (e) => {
-    const suggestionsBox = document.getElementById('searchSuggestions');
-    const searchInput = document.getElementById('searchInput');
-    
-    if (suggestionsBox && !suggestionsBox.contains(e.target) && e.target !== searchInput) {
-        suggestionsBox.classList.remove('active');
-    }
-});
+// Expose closeMenu globally
+window.closeMenu = closeMenu;
