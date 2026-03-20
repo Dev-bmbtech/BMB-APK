@@ -3,126 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Bmb Apk Download - Best APK Downloader</title>
+    <title>Bmb Apk Download - Play Store Style</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Header with Menu -->
+    <!-- Header - Play Store Style -->
     <header>
-        <div class="logo">
-            <i class="fas fa-download"></i>
-            <span>Bmb<span>Apk</span> Download</span>
-        </div>
-        <div class="header-right">
-            <a href="#" class="admin-link">
-                <i class="fas fa-home"></i> <span>Home</span>
-            </a>
-            <a href="#" class="admin-link">
-                <i class="fas fa-fire"></i> <span>Trending</span>
-            </a>
-            <a href="#" class="admin-link">
-                <i class="fas fa-th-large"></i> <span>Categories</span>
-            </a>
-            <button id="menu-toggle"><i class="fas fa-bars"></i></button>
+        <div class="header-container">
+            <div class="logo-section">
+                <button id="menu-toggle" class="menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <i class="fas fa-play-circle"></i>
+                    <span>Bmb<span>Apk</span></span>
+                </div>
+            </div>
+            <div class="search-header">
+                <div class="search-box-header">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search for apps & games">
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn">
+                    <i class="fas fa-shopping-cart"></i>
+                </button>
+                <button class="icon-btn">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <div class="avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            </div>
         </div>
     </header>
 
-    <!-- Side Menu -->
-    <nav id="drawer">
+    <!-- Navigation Tabs - Play Store Style -->
+    <nav class="nav-tabs">
+        <div class="tabs-container">
+            <button class="tab active" data-tab="for-you">
+                <i class="fas fa-user"></i> For you
+            </button>
+            <button class="tab" data-tab="top-charts">
+                <i class="fas fa-chart-line"></i> Top charts
+            </button>
+            <button class="tab" data-tab="kids">
+                <i class="fas fa-child"></i> Kids
+            </button>
+            <button class="tab" data-tab="premium">
+                <i class="fas fa-crown"></i> Premium
+            </button>
+            <button class="tab" data-tab="categories">
+                <i class="fas fa-th-large"></i> Categories
+            </button>
+        </div>
+    </nav>
+
+    <!-- Side Drawer -->
+    <div id="drawer" class="drawer">
         <div class="drawer-header">
-            <strong>BMB APK</strong>
-            <button id="close-menu">
+            <div class="drawer-logo">
+                <i class="fas fa-play-circle"></i>
+                <span>BmbApk</span>
+            </div>
+            <button id="close-menu" class="close-drawer">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <ul>
-            <li><a href="#" onclick="closeMenu()">Home</a></li>
-            <li><a href="#" onclick="closeMenu()">Trending Apps</a></li>
-            <li><a href="#" onclick="closeMenu()">Categories</a></li>
-            <li><a href="#" onclick="closeMenu()">Contact</a></li>
+        <div class="drawer-user">
+            <i class="fas fa-user-circle"></i>
+            <div>
+                <h4>Guest User</h4>
+                <p>Sign in for updates</p>
+            </div>
+        </div>
+        <ul class="drawer-menu">
+            <li><a href="#"><i class="fas fa-gamepad"></i> Games</a></li>
+            <li><a href="#"><i class="fas fa-mobile-alt"></i> Apps</a></li>
+            <li><a href="#"><i class="fas fa-film"></i> Movies & TV</a></li>
+            <li><a href="#"><i class="fas fa-book"></i> Books</a></li>
+            <li><a href="#"><i class="fas fa-headset"></i> My apps</a></li>
+            <li><a href="#"><i class="fas fa-gift"></i> Offers</a></li>
         </ul>
-        <a class="btn" style="justify-content:center" href="#">
-           <i class="fas fa-download"></i> Download Now
-        </a>
-    </nav>
-
-    <!-- Hero Section -->
-    <section id="home">
-        <div class="container reveal" style="text-align:center">
-            <div class="hero-icon">
-                <i class="fas fa-download"></i>
-            </div>
-            <h1>Download Latest <span>APK Files</span></h1>
-            <p class="tagline">Fast, Secure & Free - Get the newest versions of your favorite apps instantly</p>
-
-            <!-- Search Box -->
-            <div class="search-container">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search for any app... (e.g., WhatsApp, Instagram)">
-                    <button id="searchBtn" class="search-btn">
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                </div>
-                <div class="search-suggestions" id="searchSuggestions"></div>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <i class="fas fa-database"></i>
-                    <h3>10,000+</h3>
-                    <p>Apps Available</p>
-                </div>
-                <div class="stat-card">
-                    <i class="fas fa-bolt"></i>
-                    <h3>Fast</h3>
-                    <p>Download Speed</p>
-                </div>
-                <div class="stat-card">
-                    <i class="fas fa-shield-alt"></i>
-                    <h3>100%</h3>
-                    <p>Safe & Secure</p>
-                </div>
-            </div>
+        <div class="drawer-footer">
+            <a href="#"><i class="fas fa-cog"></i> Settings</a>
+            <a href="#"><i class="fas fa-question-circle"></i> Help & feedback</a>
         </div>
-    </section>
+    </div>
 
-    <!-- Trending Apps Section -->
-    <section id="trending">
-        <div class="container reveal">
-            <h2><i class="fas fa-fire-flame-curved"></i> Trending Apps Worldwide</h2>
-            <p class="section-subtitle">Most downloaded and popular applications this week</p>
+    <!-- Overlay for drawer -->
+    <div id="drawer-overlay" class="drawer-overlay"></div>
 
-            <div class="apps-grid" id="appsGrid">
-                <div class="loading-spinner">
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Recommended Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Recommended for you</h2>
+                <a href="#" class="see-all">See all</a>
+            </div>
+            <div class="horizontal-scroll" id="recommendedGrid">
+                <div class="loading-spinner-mini">
                     <i class="fas fa-spinner fa-spin"></i>
-                    <p>Loading trending apps...</p>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Search Results Section -->
-    <section id="searchResultsSection" style="display: none;">
-        <div class="container reveal">
-            <h2><i class="fas fa-magnifying-glass"></i> Search Results</h2>
-            <p class="section-subtitle">Found <span id="resultCount">0</span> apps matching your search</p>
+        <!-- Top Charts Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Top charts</h2>
+                <a href="#" class="see-all">See all</a>
+            </div>
+            <div class="apps-grid" id="topChartsGrid">
+                <div class="loading-spinner-mini">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trending Apps Grid -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Trending apps</h2>
+                <a href="#" class="see-all">See all</a>
+            </div>
+            <div class="apps-grid" id="trendingGrid">
+                <div class="loading-spinner-mini">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Offline Games Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Offline games</h2>
+                <a href="#" class="see-all">See all</a>
+            </div>
+            <div class="horizontal-scroll" id="offlineGamesGrid">
+                <div class="loading-spinner-mini">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search Results Section (hidden by default) -->
+        <section class="section" id="searchResultsSection" style="display: none;">
+            <div class="section-header">
+                <h2><i class="fas fa-search"></i> Search results</h2>
+            </div>
             <div class="apps-grid" id="searchResults"></div>
-        </div>
-    </section>
+        </section>
+    </main>
 
     <!-- Footer -->
-    <footer id="footer">
-        <h3>BMB APK DOWNLOAD</h3>
-        <p>Your trusted source for downloading latest APK files securely and quickly.</p>
-        <div class="social-links">
-            <a class="btn" href="#"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-            <a class="btn" href="#"><i class="fab fa-telegram"></i> Telegram</a>
-            <a class="btn" href="#"><i class="fab fa-github"></i> GitHub</a>
+    <footer class="play-footer">
+        <div class="footer-links">
+            <a href="#">About</a>
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+            <a href="#">Developers</a>
         </div>
-        <p class="copyright">© <span id="year"></span> BMB APK DOWNLOAD. All rights reserved.</p>
+        <p>© 2024 BmbApk - APK Downloader</p>
     </footer>
 
     <script src="main.js"></script>
