@@ -1,5 +1,5 @@
-// BMB APK DOWNLOAD - Play Store Style with Download Modal
-console.log("✅ Play Store Style with Modal Loaded");
+// BMB APK DOWNLOAD - Play Store Style with Search at Top & Cancelable Download
+console.log("✅ Play Store Style with Search at Top & Cancelable Download Loaded");
 
 const API_BASE_URL = 'https://api.giftedtech.co.ke/api/download/apkdl';
 const API_KEY = 'gifted';
@@ -40,9 +40,12 @@ const closeMenuBtn = document.getElementById("close-menu");
 const searchInput = document.getElementById("searchInput");
 const searchResultsSection = document.getElementById("searchResultsSection");
 const searchResults = document.getElementById("searchResults");
+const mainContent = document.querySelector(".main-content");
 
 let currentAppData = null;
 let autoOpenEnabled = true;
+let downloadTimeout = null;
+let isDownloadCancelled = false;
 
 // Initialize
 document.addEventListener("DOMContentLoaded", () => {
@@ -53,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
     createModal();
 });
 
-// Create Download Modal
+// Create Download Modal with Cancel functionality
 function createModal() {
     const modalHTML = `
         <div id="downloadModal" class="modal-overlay">
@@ -73,15 +76,18 @@ function createModal() {
                 <div class="modal-status">
                     <div class="status-pending">
                         <span>Pending...</span>
-                        <span>Downloading</span>
+                        <span id="downloadStatusText">Waiting to start</span>
                     </div>
                     <div class="status-verified">
                         <i class="fas fa-shield-alt"></i>
                         <span>Verified by Play Protect</span>
                     </div>
                 </div>
-                <div class="modal-actions">
-                    <button class="btn-open" id="modalOpenBtn">Open</button>
+                <div class="progress-bar-container" id="progressContainer" style="display: none;">
+                    <div class="progress-bar" id="progressBar"></div>
+                    <div class="progress-percent" id="progressPercent">0%</div>
+                </div>
+                <div class="modal-actions" id="modalActions">
                     <button class="btn-cancel" id="modalCancelBtn">Cancel</button>
                 </div>
                 <div class="modal-checkbox">
@@ -97,24 +103,74 @@ function createModal() {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     
     // Add event listeners
-    document.getElementById("modalOpenBtn").addEventListener("click", () => {
-        if (currentAppData && currentAppData.downloadUrl) {
-            window.open(currentAppData.downloadUrl, "_blank");
-            closeModal();
-        }
-    });
-    
-    document.getElementById("modalCancelBtn").addEventListener("click", closeModal);
+    document.getElementById("modalCancelBtn").addEventListener("click", cancelDownload);
     document.getElementById("autoOpenCheckbox").addEventListener("change", (e) => {
         autoOpenEnabled = e.target.checked;
     });
+}
+
+// Cancel download function
+function cancelDownload() {
+    if (downloadTimeout) {
+        clearTimeout(downloadTimeout);
+        downloadTimeout = null;
+    }
+    isDownloadCancelled = true;
+    
+    const modal = document.getElementById("downloadModal");
+    const statusText = document.getElementById("downloadStatusText");
+    const progressContainer = document.getElementById("progressContainer");
+    const modalActions = document.getElementById("modalActions");
+    
+    if (statusText) {
+        statusText.textContent = "Cancelled";
+        statusText.style.color = "var(--danger)";
+    }
+    
+    // Show cancelled state
+    modalActions.innerHTML = `
+        <button class="btn-cancel" id="modalCloseBtn" style="background: var(--primary-color); color: white;">Close</button>
+    `;
+    document.getElementById("modalCloseBtn").addEventListener("click", closeModal);
+    
+    // Reset after 1.5 seconds
+    setTimeout(() => {
+        if (modal && modal.classList.contains("active")) {
+            closeModal();
+        }
+    }, 2000);
+    
+    showToast("Download cancelled", "warning");
 }
 
 function showModal(appData, appName) {
     const modal = document.getElementById("downloadModal");
     if (!modal) return;
     
+    // Reset states
+    if (downloadTimeout) {
+        clearTimeout(downloadTimeout);
+        downloadTimeout = null;
+    }
+    isDownloadCancelled = false;
+    
     currentAppData = appData;
+    
+    // Reset modal content
+    const statusText = document.getElementById("downloadStatusText");
+    const progressContainer = document.getElementById("progressContainer");
+    const modalActions = document.getElementById("modalActions");
+    const progressBar = document.getElementById("progressBar");
+    const progressPercent = document.getElementById("progressPercent");
+    
+    // Reset actions
+    modalActions.innerHTML = `<button class="btn-cancel" id="modalCancelBtn">Cancel</button>`;
+    document.getElementById("modalCancelBtn").addEventListener("click", cancelDownload);
+    
+    // Reset progress
+    progressContainer.style.display = "none";
+    if (progressBar) progressBar.style.width = "0%";
+    if (progressPercent) progressPercent.textContent = "0%";
     
     // Set modal content
     document.getElementById("modalAppName").textContent = appData.appname || appName;
@@ -132,39 +188,112 @@ function showModal(appData, appName) {
         modalIcon.innerHTML = `<i class="fas fa-mobile-alt"></i>`;
     }
     
-    // Update status animation
-    const statusPending = modal.querySelector(".status-pending span:last-child");
-    statusPending.textContent = "Pending...";
-    statusPending.style.color = "var(--rating-color)";
+    // Reset status
+    statusText.textContent = "Waiting to start";
+    statusText.style.color = "var(--rating-color)";
     
     modal.classList.add("active");
     
-    // Simulate download start
+    // Start download sequence
+    startDownloadSequence(size);
+}
+
+function startDownloadSequence(fileSizeMB) {
+    let progress = 0;
+    const totalSteps = 100;
+    let currentStep = 0;
+    
+    // Show progress bar
+    const progressContainer = document.getElementById("progressContainer");
+    const progressBar = document.getElementById("progressBar");
+    const progressPercent = document.getElementById("progressPercent");
+    const statusText = document.getElementById("downloadStatusText");
+    
+    progressContainer.style.display = "block";
+    statusText.textContent = "Initializing...";
+    
+    // Update status after 500ms
     setTimeout(() => {
-        if (document.getElementById("downloadModal").classList.contains("active")) {
-            statusPending.textContent = "Downloading...";
-        }
+        if (isDownloadCancelled) return;
+        statusText.textContent = "Connecting...";
     }, 500);
     
-    // Simulate download complete after 2 seconds
-    setTimeout(() => {
-        if (document.getElementById("downloadModal").classList.contains("active")) {
-            statusPending.textContent = "Ready to install";
-            statusPending.style.color = "var(--success-color)";
+    // Start progress animation
+    const interval = setInterval(() => {
+        if (isDownloadCancelled) {
+            clearInterval(interval);
+            return;
+        }
+        
+        if (currentStep < totalSteps) {
+            // Simulate variable speed
+            let increment = Math.random() * 8 + 2;
+            currentStep = Math.min(currentStep + increment, totalSteps);
+            progress = currentStep;
             
-            if (autoOpenEnabled) {
-                window.open(appData.download_url, "_blank");
-                setTimeout(closeModal, 1000);
+            progressBar.style.width = `${progress}%`;
+            progressPercent.textContent = `${Math.floor(progress)}%`;
+            
+            // Update status text based on progress
+            if (progress < 20) {
+                statusText.textContent = "Downloading...";
+            } else if (progress < 50) {
+                statusText.textContent = `Downloaded ${Math.floor(progress)}%`;
+            } else if (progress < 90) {
+                statusText.textContent = `Almost there... ${Math.floor(progress)}%`;
+            } else if (progress >= 95) {
+                statusText.textContent = "Finalizing...";
+            }
+        } else {
+            clearInterval(interval);
+            
+            if (!isDownloadCancelled) {
+                // Download complete
+                statusText.textContent = "Ready to install";
+                statusText.style.color = "var(--success-color)";
+                
+                // Change button to Open
+                const modalActions = document.getElementById("modalActions");
+                modalActions.innerHTML = `
+                    <button class="btn-open" id="modalOpenBtn">Open</button>
+                    <button class="btn-cancel" id="modalCancelBtn">Cancel</button>
+                `;
+                
+                document.getElementById("modalOpenBtn").addEventListener("click", () => {
+                    if (currentAppData && currentAppData.download_url) {
+                        window.open(currentAppData.download_url, "_blank");
+                        showToast("Download started!", "success");
+                        closeModal();
+                    }
+                });
+                
+                document.getElementById("modalCancelBtn").addEventListener("click", cancelDownload);
+                
+                // Auto-open if enabled
+                if (autoOpenEnabled && currentAppData && currentAppData.download_url) {
+                    downloadTimeout = setTimeout(() => {
+                        if (!isDownloadCancelled && currentAppData && currentAppData.download_url) {
+                            window.open(currentAppData.download_url, "_blank");
+                            showToast("Download started automatically!", "success");
+                            closeModal();
+                        }
+                    }, 1000);
+                }
             }
         }
-    }, 2000);
+    }, 80);
 }
 
 function closeModal() {
     const modal = document.getElementById("downloadModal");
     if (modal) {
         modal.classList.remove("active");
+        if (downloadTimeout) {
+            clearTimeout(downloadTimeout);
+            downloadTimeout = null;
+        }
         currentAppData = null;
+        isDownloadCancelled = false;
     }
 }
 
@@ -200,6 +329,9 @@ function initTabs() {
         tab.addEventListener("click", () => {
             tabs.forEach(t => t.classList.remove("active"));
             tab.classList.add("active");
+            // Clear search when changing tabs
+            if (searchInput) searchInput.value = "";
+            searchResultsSection.style.display = "none";
             window.scrollTo({ top: 0, behavior: "smooth" });
         });
     });
@@ -317,9 +449,7 @@ function createHorizontalCard(appData, appName) {
             developer: btn.dataset.developer
         };
         showModal(appInfo, appName);
-        if (btn.dataset.url) {
-            // Download will happen after modal
-        } else {
+        if (!btn.dataset.url) {
             searchAndDownload(appName);
         }
     });
@@ -366,9 +496,7 @@ function createGridCard(appData, appName) {
             developer: btn.dataset.developer
         };
         showModal(appInfo, appName);
-        if (btn.dataset.url) {
-            // Download will happen after modal
-        } else {
+        if (!btn.dataset.url) {
             searchAndDownload(appName);
         }
     });
@@ -468,7 +596,7 @@ function getCategory(appName) {
     return 'App';
 }
 
-// Search Function
+// Search Function - Shows results at the TOP of the page
 if (searchInput) {
     searchInput.addEventListener("input", debounce(handleSearch, 500));
     searchInput.addEventListener("keypress", (e) => {
@@ -493,11 +621,19 @@ async function handleSearch() {
     
     if (!searchTerm) {
         searchResultsSection.style.display = "none";
+        // Scroll back to top of main content
+        if (mainContent) {
+            mainContent.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
         return;
     }
     
+    // Show search results section at the TOP
     searchResultsSection.style.display = "block";
-    searchResults.innerHTML = '<div class="loading-spinner-mini"><i class="fas fa-spinner fa-spin"></i></div>';
+    searchResults.innerHTML = '<div class="loading-spinner-mini"><i class="fas fa-spinner fa-spin"></i><p style="margin-top:12px;">Searching...</p></div>';
+    
+    // Scroll search results into view at the TOP
+    searchResultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
     
     try {
         const appData = await fetchAppData(searchTerm);
@@ -506,10 +642,16 @@ async function handleSearch() {
         if (appData && appData.success && appData.result) {
             const card = createGridCard(appData.result, searchTerm);
             searchResults.appendChild(card);
+            
+            // Add a note that this is the exact match
+            const note = document.createElement("div");
+            note.style.cssText = "grid-column:1/-1; text-align:center; padding:8px; color:var(--text-muted); font-size:12px;";
+            note.innerHTML = '<i class="fas fa-check-circle" style="color:var(--success-color);"></i> Exact match found';
+            searchResults.appendChild(note);
         } else {
             const matches = ALL_APPS.filter(app => 
                 app.toLowerCase().includes(searchTerm.toLowerCase())
-            ).slice(0, 6);
+            ).slice(0, 8);
             
             if (matches.length > 0) {
                 for (const match of matches) {
@@ -524,27 +666,33 @@ async function handleSearch() {
                 }
             } else {
                 searchResults.innerHTML = `
-                    <div style="grid-column:1/-1; text-align:center; padding:40px;">
-                        <i class="fas fa-search" style="font-size:48px; color:#8a8a9a; margin-bottom:16px;"></i>
-                        <h3>No results found</h3>
-                        <p style="color:#b0b0c0;">Try searching for another app</p>
+                    <div style="grid-column:1/-1; text-align:center; padding:60px 20px;">
+                        <i class="fas fa-search" style="font-size:56px; color:#8a8a9a; margin-bottom:20px;"></i>
+                        <h3 style="margin-bottom:8px;">No results found</h3>
+                        <p style="color:#b0b0c0;">Try searching for another app name</p>
+                        <div style="margin-top:24px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                            <button onclick="document.getElementById('searchInput').value='WhatsApp'; handleSearch();" style="background:var(--bg-soft); border:1px solid var(--border-color); padding:8px 16px; border-radius:24px; color:var(--text-primary); cursor:pointer;">WhatsApp</button>
+                            <button onclick="document.getElementById('searchInput').value='Instagram'; handleSearch();" style="background:var(--bg-soft); border:1px solid var(--border-color); padding:8px 16px; border-radius:24px; color:var(--text-primary); cursor:pointer;">Instagram</button>
+                            <button onclick="document.getElementById('searchInput').value='TikTok'; handleSearch();" style="background:var(--bg-soft); border:1px solid var(--border-color); padding:8px 16px; border-radius:24px; color:var(--text-primary); cursor:pointer;">TikTok</button>
+                        </div>
                     </div>
                 `;
             }
         }
     } catch (error) {
         searchResults.innerHTML = `
-            <div style="grid-column:1/-1; text-align:center; padding:40px;">
-                <i class="fas fa-exclamation-triangle" style="font-size:48px; color:#f9ab00; margin-bottom:16px;"></i>
+            <div style="grid-column:1/-1; text-align:center; padding:60px 20px;">
+                <i class="fas fa-exclamation-triangle" style="font-size:56px; color:#f9ab00; margin-bottom:20px;"></i>
                 <h3>Search error</h3>
-                <p style="color:#b0b0c0;">Please try again</p>
+                <p style="color:#b0b0c0;">Please check your connection and try again</p>
+                <button onclick="handleSearch()" style="margin-top:20px; background:var(--primary-color); border:none; padding:10px 24px; border-radius:24px; color:white; cursor:pointer;">Retry</button>
             </div>
         `;
     }
 }
 
 async function searchAndDownload(appName) {
-    showToast(`Searching for ${appName}...`, "info");
+    showToast(`Finding ${appName}...`, "info");
     
     try {
         const appData = await fetchAppData(appName);
@@ -557,11 +705,11 @@ async function searchAndDownload(appName) {
             };
             showModal(appInfo, appName);
         } else {
-            showToast(`Could not find download link`, "error");
+            showToast(`Could not find download link for ${appName}`, "error");
             closeModal();
         }
     } catch (error) {
-        showToast("Download failed", "error");
+        showToast("Download failed. Please try again.", "error");
         closeModal();
     }
 }
