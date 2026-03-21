@@ -26,15 +26,20 @@
                     <i class="fas fa-search"></i>
                     <input type="text" id="searchInput" placeholder="Search for apps & games">
                 </div>
+                <!-- Search History Dropdown -->
+                <div class="search-history-dropdown" id="searchHistoryDropdown">
+                    <div class="history-header">
+                        <span>Recent searches</span>
+                        <button id="clearHistoryBtn" class="clear-history-btn">Clear all</button>
+                    </div>
+                    <div id="searchHistoryList"></div>
+                </div>
             </div>
             <div class="header-actions">
-                <button class="icon-btn">
-                    <i class="fas fa-shopping-cart"></i>
+                <button class="icon-btn" id="accountBtn">
+                    <i class="fas fa-user-circle"></i>
                 </button>
-                <button class="icon-btn">
-                    <i class="fas fa-bell"></i>
-                </button>
-                <div class="avatar">
+                <div class="avatar" id="userAvatar">
                     <i class="fas fa-user-circle"></i>
                 </div>
             </div>
@@ -45,22 +50,132 @@
     <nav class="nav-tabs">
         <div class="tabs-container">
             <button class="tab active" data-tab="for-you">
-                <i class="fas fa-user"></i> For you
+                <i class="fas fa-user"></i> <span>For you</span>
             </button>
             <button class="tab" data-tab="top-charts">
-                <i class="fas fa-chart-line"></i> Top charts
+                <i class="fas fa-chart-line"></i> <span>Top charts</span>
             </button>
             <button class="tab" data-tab="kids">
-                <i class="fas fa-child"></i> Kids
+                <i class="fas fa-child"></i> <span>Kids</span>
             </button>
             <button class="tab" data-tab="premium">
-                <i class="fas fa-crown"></i> Premium
+                <i class="fas fa-crown"></i> <span>Premium</span>
             </button>
             <button class="tab" data-tab="categories">
-                <i class="fas fa-th-large"></i> Categories
+                <i class="fas fa-th-large"></i> <span>Categories</span>
             </button>
         </div>
     </nav>
+
+    <!-- Auth Modal (Login/Signup) -->
+    <div id="authModal" class="modal-overlay auth-modal">
+        <div class="auth-container">
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-auth="login">Sign in</button>
+                <button class="auth-tab" data-auth="signup">Create account</button>
+            </div>
+            
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form active">
+                <h3>Welcome back</h3>
+                <p class="auth-subtitle">Sign in to continue</p>
+                
+                <div class="google-btn" id="googleLoginBtn">
+                    <i class="fab fa-google"></i>
+                    <span>Continue with Google</span>
+                </div>
+                
+                <div class="auth-divider">or</div>
+                
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="loginEmail" placeholder="Email address" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="loginPassword" placeholder="Password" required>
+                </div>
+                <button id="loginSubmitBtn" class="auth-submit-btn">Sign in</button>
+                <p class="auth-footer">Don't have an account? <span class="auth-switch">Create one</span></p>
+            </div>
+            
+            <!-- Signup Form -->
+            <div id="signupForm" class="auth-form">
+                <h3>Create account</h3>
+                <p class="auth-subtitle">Join BmbApk today</p>
+                
+                <div class="google-btn" id="googleSignupBtn">
+                    <i class="fab fa-google"></i>
+                    <span>Continue with Google</span>
+                </div>
+                
+                <div class="auth-divider">or</div>
+                
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="signupName" placeholder="Full name" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="signupEmail" placeholder="Email address" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="signupPassword" placeholder="Password" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-check-circle"></i>
+                    <input type="password" id="signupConfirmPassword" placeholder="Confirm password" required>
+                </div>
+                <button id="signupSubmitBtn" class="auth-submit-btn">Create account</button>
+                <p class="auth-footer">Already have an account? <span class="auth-switch">Sign in</span></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal-overlay profile-modal">
+        <div class="profile-container">
+            <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <button class="close-profile" id="closeProfileBtn">&times;</button>
+            </div>
+            <div class="profile-info">
+                <h3 id="profileName">User Name</h3>
+                <p id="profileEmail">user@example.com</p>
+            </div>
+            <div class="profile-actions">
+                <button id="editProfileBtn" class="profile-action-btn">
+                    <i class="fas fa-edit"></i> Edit Profile
+                </button>
+                <button id="logoutBtn" class="profile-action-btn logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal-overlay edit-profile-modal">
+        <div class="edit-profile-container">
+            <h3>Edit Profile</h3>
+            <div class="edit-avatar" id="editAvatar">
+                <img id="editAvatarImg" src="" alt="Avatar">
+                <button id="changeAvatarBtn"><i class="fas fa-camera"></i></button>
+                <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="editName" placeholder="Full name">
+            </div>
+            <div class="profile-actions">
+                <button id="saveProfileBtn" class="auth-submit-btn">Save Changes</button>
+                <button id="cancelEditBtn" class="cancel-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Side Drawer -->
     <div id="drawer" class="drawer">
@@ -73,20 +188,19 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <div class="drawer-user">
+        <div class="drawer-user" id="drawerUser">
             <i class="fas fa-user-circle"></i>
             <div>
-                <h4>Guest User</h4>
-                <p>Sign in for updates</p>
+                <h4 id="drawerUserName">Guest User</h4>
+                <p id="drawerUserEmail">Sign in for updates</p>
             </div>
         </div>
         <ul class="drawer-menu">
+            <li><a href="#" id="drawerProfileBtn"><i class="fas fa-user"></i> My Profile</a></li>
             <li><a href="#"><i class="fas fa-gamepad"></i> Games</a></li>
             <li><a href="#"><i class="fas fa-mobile-alt"></i> Apps</a></li>
-            <li><a href="#"><i class="fas fa-film"></i> Movies & TV</a></li>
-            <li><a href="#"><i class="fas fa-book"></i> Books</a></li>
-            <li><a href="#"><i class="fas fa-headset"></i> My apps</a></li>
-            <li><a href="#"><i class="fas fa-gift"></i> Offers</a></li>
+            <li><a href="#" id="drawerHistoryBtn"><i class="fas fa-history"></i> Search History</a></li>
+            <li><a href="#"><i class="fas fa-download"></i> My Downloads</a></li>
         </ul>
         <div class="drawer-footer">
             <a href="#"><i class="fas fa-cog"></i> Settings</a>
@@ -97,8 +211,16 @@
     <!-- Overlay for drawer -->
     <div id="drawer-overlay" class="drawer-overlay"></div>
 
-    <!-- Main Content -->
-    <main class="main-content">
+    <!-- Main Content (Protected - requires login) -->
+    <main class="main-content" id="mainContent" style="display: none;">
+        <!-- Search Results Section - at TOP -->
+        <section class="section" id="searchResultsSection" style="display: none;">
+            <div class="section-header">
+                <h2><i class="fas fa-search"></i> Search results</h2>
+            </div>
+            <div class="apps-grid" id="searchResults"></div>
+        </section>
+
         <!-- Recommended Section -->
         <section class="section">
             <div class="section-header">
@@ -150,18 +272,20 @@
                 </div>
             </div>
         </section>
-
-        <!-- Search Results Section (hidden by default) -->
-        <section class="section" id="searchResultsSection" style="display: none;">
-            <div class="section-header">
-                <h2><i class="fas fa-search"></i> Search results</h2>
-            </div>
-            <div class="apps-grid" id="searchResults"></div>
-        </section>
     </main>
 
+    <!-- Unauthorized Message -->
+    <div id="unauthorizedMessage" class="unauthorized-container" style="display: flex;">
+        <div class="unauthorized-card">
+            <i class="fas fa-lock"></i>
+            <h2>Welcome to BmbApk</h2>
+            <p>Please sign in or create an account to access the app store</p>
+            <button id="getStartedBtn" class="auth-submit-btn">Get Started</button>
+        </div>
+    </div>
+
     <!-- Footer -->
-    <footer class="play-footer">
+    <footer class="play-footer" id="footer">
         <div class="footer-links">
             <a href="#">About</a>
             <a href="#">Privacy</a>
@@ -171,6 +295,16 @@
         <p>© 2024 BmbApk - APK Downloader</p>
     </footer>
 
-    <script src="main.js"></script>
+    <!-- Environment Variables -->
+    <script>
+        // IMPORTANT: Replace these with your actual Supabase credentials from .env
+        window.ENV = {
+            SUPABASE_URL: 'https://your-project.supabase.co',
+            SUPABASE_ANON_KEY: 'your-anon-key-here'
+        };
+    </script>
+    
+    <!-- Main JavaScript -->
+    <script type="module" src="main.js"></script>
 </body>
 </html>
