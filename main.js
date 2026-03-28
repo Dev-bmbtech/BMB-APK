@@ -1,10 +1,10 @@
-// BMB APK DOWNLOAD - Main JavaScript (Premium Version)
+// BMB APK DOWNLOAD - Premium Version (Fully Optimized)
 console.log("🚀 BmbApk Premium Loaded");
 
 const API_BASE_URL = 'https://api.giftedtech.co.ke/api/download/apkdl';
 const API_KEY = 'gifted';
 
-// App Data
+// App Data with Real Icons Support
 const APPS_DATA = {
     recommended: [
         'WhatsApp', 'Instagram', 'TikTok', 'Facebook', 'Spotify', 'Netflix', 'YouTube', 'CapCut'
@@ -31,6 +31,9 @@ const ALL_APPS = [
     'Minecraft', 'Roblox', 'Brawl Stars', 'Clash of Clans', 'Clash Royale', 'Pokémon GO'
 ];
 
+// App Icons Cache
+const appIconsCache = {};
+
 // DOM Elements
 let currentUser = null;
 let downloadInterval = null;
@@ -39,11 +42,13 @@ let currentDownload = null;
 // Initialize
 document.addEventListener("DOMContentLoaded", async () => {
     // Initialize AOS
-    AOS.init({
-        duration: 800,
-        once: true,
-        offset: 100
-    });
+    if (typeof AOS !== 'undefined') {
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100
+        });
+    }
     
     // Hide loading screen
     setTimeout(() => {
@@ -56,7 +61,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (savedUser) {
         currentUser = JSON.parse(savedUser);
         showMainContent();
-        loadAllSections();
+        await loadAllSections();
     } else {
         showUnauthorized();
     }
@@ -179,8 +184,13 @@ function initMenu() {
             e.preventDefault();
             drawer.classList.remove('open');
             drawerOverlay.classList.remove('active');
-            if (currentUser) loadSearchHistory();
-            else openAuthModal();
+            if (currentUser) {
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) searchInput.focus();
+                loadSearchHistory();
+            } else {
+                openAuthModal();
+            }
         });
     }
 }
@@ -457,10 +467,7 @@ function initProfileModals() {
 
 function openProfileModal() {
     if (!currentUser) return;
-    
-    // Update profile data
     updateUserUI();
-    
     const modal = document.getElementById('profileModal');
     if (modal) modal.classList.add('active');
 }
@@ -665,7 +672,7 @@ function saveSearchHistory(term) {
     localStorage.setItem(`search_history_${currentUser.email}`, JSON.stringify(history));
 }
 
-// Search Function
+// Search Function - Improved
 async function handleSearch() {
     const searchInput = document.getElementById('searchInput');
     const searchTerm = searchInput?.value.trim();
@@ -685,7 +692,7 @@ async function handleSearch() {
     
     if (searchResultsSection) searchResultsSection.style.display = 'block';
     if (searchResults) {
-        searchResults.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+        searchResults.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><p style="margin-top:12px;">Searching for ' + escapeHtml(searchTerm) + '...</p></div>';
     }
     
     searchResultsSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -698,34 +705,58 @@ async function handleSearch() {
     }
     
     try {
-        const appData = await fetchAppData(searchTerm);
+        // First try exact match
+        const exactData = await fetchAppData(searchTerm);
+        
         if (searchResults) searchResults.innerHTML = '';
         
-        if (appData && appData.success && appData.result) {
-            const card = createGridCard(appData.result, searchTerm);
+        if (exactData && exactData.success && exactData.result) {
+            // Exact match found
+            const card = createGridCard(exactData.result, searchTerm);
             if (searchResults) searchResults.appendChild(card);
+            
+            // Add note
+            const note = document.createElement('div');
+            note.style.cssText = 'grid-column:1/-1; text-align:center; padding:12px; color:var(--text-muted); font-size:13px;';
+            note.innerHTML = '<i class="fas fa-check-circle" style="color:var(--success);"></i> Exact match found';
+            searchResults.appendChild(note);
         } else {
+            // Search for similar apps
             const matches = ALL_APPS.filter(app => 
                 app.toLowerCase().includes(searchTerm.toLowerCase())
-            ).slice(0, 8);
+            );
             
             if (matches.length > 0 && searchResults) {
-                for (const match of matches) {
+                // Show results count
+                const countInfo = document.createElement('div');
+                countInfo.style.cssText = 'grid-column:1/-1; text-align:center; padding:8px; color:var(--text-muted); font-size:13px;';
+                countInfo.innerHTML = `<i class="fas fa-search"></i> Found ${matches.length} results for "${escapeHtml(searchTerm)}"`;
+                searchResults.appendChild(countInfo);
+                
+                // Load each matching app
+                for (const match of matches.slice(0, 12)) {
                     const data = await fetchAppData(match);
-                    if (data && data.success) {
+                    if (data && data.success && data.result) {
                         const card = createGridCard(data.result, match);
                         searchResults.appendChild(card);
                     } else {
                         const card = createFallbackGridCard(match);
                         searchResults.appendChild(card);
                     }
+                    await new Promise(resolve => setTimeout(resolve, 50));
                 }
             } else if (searchResults) {
                 searchResults.innerHTML = `
                     <div style="grid-column:1/-1; text-align:center; padding:60px 20px;">
                         <i class="fas fa-search" style="font-size:56px; color:var(--text-muted); margin-bottom:20px;"></i>
-                        <h3>No results found</h3>
-                        <p style="color:var(--text-muted);">Try searching for another app name</p>
+                        <h3>No results found for "${escapeHtml(searchTerm)}"</h3>
+                        <p style="color:var(--text-muted); margin-top:8px;">Try checking spelling or try a different app name</p>
+                        <div style="margin-top:24px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                            <button onclick="document.getElementById('searchInput').value='WhatsApp'; handleSearch();" class="suggestion-chip">WhatsApp</button>
+                            <button onclick="document.getElementById('searchInput').value='Instagram'; handleSearch();" class="suggestion-chip">Instagram</button>
+                            <button onclick="document.getElementById('searchInput').value='TikTok'; handleSearch();" class="suggestion-chip">TikTok</button>
+                            <button onclick="document.getElementById('searchInput').value='Spotify'; handleSearch();" class="suggestion-chip">Spotify</button>
+                        </div>
                     </div>
                 `;
             }
@@ -737,7 +768,8 @@ async function handleSearch() {
                 <div style="grid-column:1/-1; text-align:center; padding:60px 20px;">
                     <i class="fas fa-exclamation-triangle" style="font-size:56px; color:var(--warning); margin-bottom:20px;"></i>
                     <h3>Search error</h3>
-                    <p style="color:var(--text-muted);">Please try again</p>
+                    <p style="color:var(--text-muted);">Please check your connection and try again</p>
+                    <button onclick="handleSearch()" style="margin-top:20px; background:var(--primary); border:none; padding:10px 24px; border-radius:24px; color:white; cursor:pointer;">Retry</button>
                 </div>
             `;
         }
@@ -763,7 +795,7 @@ async function loadHorizontalSection(containerId, appNames) {
     for (const appName of appNames) {
         try {
             const appData = await fetchAppData(appName);
-            if (appData && appData.success) {
+            if (appData && appData.success && appData.result) {
                 const card = createHorizontalCard(appData.result, appName);
                 container.appendChild(card);
             } else {
@@ -787,7 +819,7 @@ async function loadGridSection(containerId, appNames) {
     for (const appName of appNames) {
         try {
             const appData = await fetchAppData(appName);
-            if (appData && appData.success) {
+            if (appData && appData.success && appData.result) {
                 const card = createGridCard(appData.result, appName);
                 container.appendChild(card);
             } else {
@@ -807,6 +839,12 @@ async function fetchAppData(appName) {
         const url = `${API_BASE_URL}?apikey=${API_KEY}&appName=${encodeURIComponent(appName)}`;
         const response = await fetch(url);
         const data = await response.json();
+        
+        // Cache the icon if available
+        if (data.success && data.result && data.result.appicon) {
+            appIconsCache[appName.toLowerCase()] = data.result.appicon;
+        }
+        
         return data;
     } catch (error) {
         console.error('API Error:', error);
@@ -814,7 +852,7 @@ async function fetchAppData(appName) {
     }
 }
 
-// Create Cards
+// Create Cards with Real Icons
 function createHorizontalCard(appData, appName) {
     const card = document.createElement('div');
     card.className = 'app-card-horizontal';
@@ -823,9 +861,15 @@ function createHorizontalCard(appData, appName) {
     const category = getCategory(appName);
     const size = Math.floor(Math.random() * 120 + 30);
     
-    const iconHtml = appData.appicon 
-        ? `<img src="${appData.appicon}" alt="${appData.appname}">`
-        : `<i class="fas fa-mobile-alt"></i>`;
+    // Use real icon from API or fallback
+    let iconHtml;
+    if (appData.appicon) {
+        iconHtml = `<img src="${appData.appicon}" alt="${appData.appname}" onerror="this.src='https://via.placeholder.com/120?text=${appName.charAt(0)}'">`;
+    } else if (appIconsCache[appName.toLowerCase()]) {
+        iconHtml = `<img src="${appIconsCache[appName.toLowerCase()]}" alt="${appName}">`;
+    } else {
+        iconHtml = `<i class="fas fa-mobile-alt"></i>`;
+    }
     
     card.innerHTML = `
         <div class="app-icon-horizontal">
@@ -838,7 +882,7 @@ function createHorizontalCard(appData, appName) {
             <span>${rating}</span>
             <span style="color: var(--text-muted);">★ ${size} MB</span>
         </div>
-        <button class="download-btn-play" data-app="${escapeHtml(appName)}" data-url="${appData.download_url || ''}" data-icon="${appData.appicon || ''}" data-developer="${escapeHtml(appData.developer || category)}">
+        <button class="download-btn-play" data-app="${escapeHtml(appName)}" data-url="${appData.download_url || ''}" data-icon="${appData.appicon || ''}" data-developer="${escapeHtml(appData.developer || category)}" data-appname="${escapeHtml(appData.appname || appName)}">
             <i class="fas fa-download"></i> Download
         </button>
     `;
@@ -846,8 +890,14 @@ function createHorizontalCard(appData, appName) {
     const btn = card.querySelector('.download-btn-play');
     btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (btn.dataset.url) {
-            showDownloadModal(appName, btn.dataset.url, btn.dataset.icon, btn.dataset.developer);
+        const appInfo = {
+            name: btn.dataset.appname || appName,
+            downloadUrl: btn.dataset.url,
+            icon: btn.dataset.icon,
+            developer: btn.dataset.developer
+        };
+        if (appInfo.downloadUrl) {
+            showDownloadModal(appInfo);
         } else {
             searchAndDownload(appName);
         }
@@ -864,9 +914,15 @@ function createGridCard(appData, appName) {
     const category = getCategory(appName);
     const size = Math.floor(Math.random() * 120 + 30);
     
-    const iconHtml = appData.appicon 
-        ? `<img src="${appData.appicon}" alt="${appData.appname}">`
-        : `<i class="fas fa-mobile-alt"></i>`;
+    // Use real icon from API
+    let iconHtml;
+    if (appData.appicon) {
+        iconHtml = `<img src="${appData.appicon}" alt="${appData.appname}" onerror="this.src='https://via.placeholder.com/80?text=${appName.charAt(0)}'">`;
+    } else if (appIconsCache[appName.toLowerCase()]) {
+        iconHtml = `<img src="${appIconsCache[appName.toLowerCase()]}" alt="${appName}">`;
+    } else {
+        iconHtml = `<i class="fas fa-mobile-alt"></i>`;
+    }
     
     card.innerHTML = `
         <div class="app-icon-grid">
@@ -879,7 +935,7 @@ function createGridCard(appData, appName) {
             <span>${rating}</span>
             <span style="color: var(--text-muted);">★ ${size} MB</span>
         </div>
-        <button class="download-btn-play" data-app="${escapeHtml(appName)}" data-url="${appData.download_url || ''}" data-icon="${appData.appicon || ''}" data-developer="${escapeHtml(appData.developer || category)}">
+        <button class="download-btn-play" data-app="${escapeHtml(appName)}" data-url="${appData.download_url || ''}" data-icon="${appData.appicon || ''}" data-developer="${escapeHtml(appData.developer || category)}" data-appname="${escapeHtml(appData.appname || appName)}">
             <i class="fas fa-download"></i> Download
         </button>
     `;
@@ -887,8 +943,14 @@ function createGridCard(appData, appName) {
     const btn = card.querySelector('.download-btn-play');
     btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (btn.dataset.url) {
-            showDownloadModal(appName, btn.dataset.url, btn.dataset.icon, btn.dataset.developer);
+        const appInfo = {
+            name: btn.dataset.appname || appName,
+            downloadUrl: btn.dataset.url,
+            icon: btn.dataset.icon,
+            developer: btn.dataset.developer
+        };
+        if (appInfo.downloadUrl) {
+            showDownloadModal(appInfo);
         } else {
             searchAndDownload(appName);
         }
@@ -957,16 +1019,17 @@ function createFallbackGridCard(appName) {
 
 function getCategory(appName) {
     const lower = appName.toLowerCase();
-    if (lower.includes('game') || lower.includes('subway') || lower.includes('candy')) return 'Game';
-    if (lower.includes('ai') || lower.includes('vidu') || lower.includes('hailuo')) return 'AI & Tools';
+    if (lower.includes('game') || lower.includes('subway') || lower.includes('candy') || lower.includes('temple')) return 'Game';
+    if (lower.includes('ai') || lower.includes('vidu') || lower.includes('hailuo') || lower.includes('genspark')) return 'AI & Tools';
     if (lower.includes('pesa') || lower.includes('finance')) return 'Finance';
-    if (lower.includes('whatsapp') || lower.includes('instagram') || lower.includes('facebook')) return 'Social';
+    if (lower.includes('whatsapp') || lower.includes('instagram') || lower.includes('facebook') || lower.includes('telegram')) return 'Social';
     if (lower.includes('canva') || lower.includes('capcut')) return 'Art & Design';
+    if (lower.includes('spotify') || lower.includes('netflix') || lower.includes('youtube')) return 'Entertainment';
     return 'App';
 }
 
-// Download Modal
-function showDownloadModal(appName, downloadUrl, icon, developer) {
+// Download Modal - Enhanced
+function showDownloadModal(appInfo) {
     const modal = document.getElementById('downloadModal');
     const appIcon = document.getElementById('downloadAppIcon');
     const appNameEl = document.getElementById('downloadAppName');
@@ -978,28 +1041,30 @@ function showDownloadModal(appName, downloadUrl, icon, developer) {
     const cancelBtn = document.getElementById('cancelDownloadBtn');
     const openBtn = document.getElementById('openDownloadBtn');
     const closeBtn = document.getElementById('closeDownloadModal');
+    const statusText = document.querySelector('.progress-status span:first-child');
     
     if (!modal) return;
     
     // Reset
     if (downloadInterval) clearInterval(downloadInterval);
     
-    // Set app info
+    // Set app info with real icon
     if (appIcon) {
-        if (icon) {
-            appIcon.innerHTML = `<img src="${icon}" alt="${appName}" style="width:100%; height:100%; object-fit:cover;">`;
+        if (appInfo.icon) {
+            appIcon.innerHTML = `<img src="${appInfo.icon}" alt="${appInfo.name}" style="width:100%; height:100%; object-fit:cover;">`;
         } else {
             appIcon.innerHTML = `<i class="fas fa-mobile-alt"></i>`;
         }
     }
-    if (appNameEl) appNameEl.textContent = appName;
-    if (developerEl) developerEl.textContent = developer || 'BmbApk';
+    if (appNameEl) appNameEl.textContent = appInfo.name;
+    if (developerEl) developerEl.textContent = appInfo.developer || 'BmbApk';
     
     // Reset progress
     if (progressFill) progressFill.style.width = '0%';
     if (percentEl) percentEl.textContent = '0%';
     if (speedEl) speedEl.textContent = '0 KB/s';
     if (timeEl) timeEl.textContent = '-- remaining';
+    if (statusText) statusText.textContent = 'Downloading...';
     
     // Show cancel, hide open
     if (cancelBtn) cancelBtn.style.display = 'flex';
@@ -1008,44 +1073,60 @@ function showDownloadModal(appName, downloadUrl, icon, developer) {
     // Open modal
     modal.classList.add('active');
     
-    // Simulate download
+    // Simulate download with realistic timing
     let progress = 0;
     const startTime = Date.now();
+    const fileSizeMB = Math.floor(Math.random() * 80 + 20); // 20-100 MB
     
     downloadInterval = setInterval(() => {
-        progress += Math.random() * 10 + 5;
+        // Simulate varying download speed
+        let increment = Math.random() * 15 + 5;
+        progress = Math.min(progress + increment, 100);
+        
+        if (progressFill) progressFill.style.width = `${progress}%`;
+        if (percentEl) percentEl.textContent = `${Math.floor(progress)}%`;
+        
+        // Calculate speed and remaining time
+        const elapsed = (Date.now() - startTime) / 1000;
+        const downloadedMB = (progress / 100) * fileSizeMB;
+        const speedKBs = (downloadedMB * 1024) / elapsed;
+        
+        if (speedEl && !isNaN(speedKBs) && isFinite(speedKBs)) {
+            if (speedKBs > 1024) {
+                speedEl.textContent = `${(speedKBs / 1024).toFixed(1)} MB/s`;
+            } else {
+                speedEl.textContent = `${Math.floor(speedKBs)} KB/s`;
+            }
+        }
+        
+        if (timeEl && progress < 100 && progress > 0) {
+            const remainingTime = ((100 - progress) / progress) * elapsed;
+            if (remainingTime < 60) {
+                timeEl.textContent = `${Math.floor(remainingTime)}s remaining`;
+            } else if (remainingTime < 3600) {
+                timeEl.textContent = `${Math.floor(remainingTime / 60)}m ${Math.floor(remainingTime % 60)}s remaining`;
+            } else {
+                timeEl.textContent = `${Math.floor(remainingTime / 3600)}h remaining`;
+            }
+        }
+        
         if (progress >= 100) {
-            progress = 100;
             clearInterval(downloadInterval);
             
             // Download complete
             if (progressFill) progressFill.style.width = '100%';
             if (percentEl) percentEl.textContent = '100%';
             if (speedEl) speedEl.textContent = 'Complete!';
-            if (timeEl) timeEl.textContent = 'Ready to open';
+            if (timeEl) timeEl.textContent = 'Ready to install';
+            if (statusText) statusText.textContent = 'Complete!';
             
             // Show open button, hide cancel
             if (cancelBtn) cancelBtn.style.display = 'none';
             if (openBtn) openBtn.style.display = 'flex';
             
-            currentDownload = { appName, downloadUrl };
+            currentDownload = { ...appInfo };
         }
-        
-        if (progressFill) progressFill.style.width = `${progress}%`;
-        if (percentEl) percentEl.textContent = `${Math.floor(progress)}%`;
-        
-        // Calculate speed and time
-        const elapsed = (Date.now() - startTime) / 1000;
-        const speed = (progress / elapsed) * 10;
-        if (speedEl && !isNaN(speed)) {
-            speedEl.textContent = `${Math.floor(speed)} KB/s`;
-        }
-        
-        const remaining = (100 - progress) / (progress / elapsed);
-        if (timeEl && !isNaN(remaining) && remaining < 3600) {
-            timeEl.textContent = `${Math.floor(remaining)}s remaining`;
-        }
-    }, 200);
+    }, 150);
     
     // Cancel download
     if (cancelBtn) {
@@ -1061,7 +1142,11 @@ function showDownloadModal(appName, downloadUrl, icon, developer) {
         openBtn.onclick = () => {
             if (currentDownload && currentDownload.downloadUrl) {
                 window.open(currentDownload.downloadUrl, '_blank');
-                showToast(`Opening ${currentDownload.appName}...`, 'success');
+                showToast(`Opening ${currentDownload.name}...`, 'success');
+                modal.classList.remove('active');
+            } else {
+                // Try to get download URL again
+                searchAndDownload(currentDownload?.name || appInfo.name);
                 modal.classList.remove('active');
             }
         };
@@ -1089,7 +1174,13 @@ async function searchAndDownload(appName) {
     try {
         const appData = await fetchAppData(appName);
         if (appData && appData.success && appData.result && appData.result.download_url) {
-            showDownloadModal(appName, appData.result.download_url, appData.result.appicon, appData.result.developer);
+            const appInfo = {
+                name: appData.result.appname || appName,
+                downloadUrl: appData.result.download_url,
+                icon: appData.result.appicon,
+                developer: appData.result.developer
+            };
+            showDownloadModal(appInfo);
         } else {
             showToast(`Could not find download link for ${appName}`, 'error');
         }
@@ -1136,16 +1227,6 @@ function initCursor() {
         cursorFollower.style.transform = `translate(${e.clientX - 15}px, ${e.clientY - 15}px)`;
     });
     
-    document.addEventListener('mouseenter', () => {
-        cursor.style.opacity = '1';
-        cursorFollower.style.opacity = '0.5';
-    });
-    
-    document.addEventListener('mouseleave', () => {
-        cursor.style.opacity = '0';
-        cursorFollower.style.opacity = '0';
-    });
-    
     const links = document.querySelectorAll('a, button, .download-btn-play, .app-card');
     links.forEach(link => {
         link.addEventListener('mouseenter', () => {
@@ -1164,7 +1245,7 @@ function initEventListeners() {
     const learnMoreBtn = document.getElementById('learnMoreBtn');
     if (learnMoreBtn) {
         learnMoreBtn.addEventListener('click', () => {
-            showToast('BmbApk - Your trusted APK downloader!', 'info');
+            showToast('BmbApk - Your trusted APK downloader! Download millions of apps and games for free.', 'info');
         });
     }
 }
@@ -1210,3 +1291,26 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+
+// Add suggestion chip styles
+const style = document.createElement('style');
+style.textContent = `
+    .suggestion-chip {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        padding: 8px 16px;
+        border-radius: 40px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: inherit;
+        font-size: 14px;
+    }
+    .suggestion-chip:hover {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+`;
+document.head.appendChild(style);
