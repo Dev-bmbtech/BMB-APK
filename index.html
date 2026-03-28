@@ -3,308 +3,542 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Bmb Apk Download - Play Store Style</title>
+    <title>BmbApk - Premium APK Downloader</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
 </head>
 <body>
-    <!-- Header - Play Store Style -->
-    <header>
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader">
+            <div class="loader-ring"></div>
+            <div class="loader-ring"></div>
+            <div class="loader-ring"></div>
+            <p>Loading BmbApk...</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
         <div class="header-container">
             <div class="logo-section">
-                <button id="menu-toggle" class="menu-btn">
+                <button class="menu-btn" id="menuToggle">
                     <i class="fas fa-bars"></i>
                 </button>
-                <div class="logo">
-                    <i class="fas fa-play-circle"></i>
-                    <span>Bmb<span>Apk</span></span>
+                <div class="logo" data-aos="fade-right">
+                    <div class="logo-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <div class="logo-text">
+                        <span class="logo-main">Bmb<span>Apk</span></span>
+                        <span class="logo-badge">PREMIUM</span>
+                    </div>
                 </div>
             </div>
-            <div class="search-header">
-                <div class="search-box-header">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search for apps & games">
+
+            <div class="search-wrapper" data-aos="fade-down">
+                <div class="search-container-modern">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Search apps, games, and more...">
+                    <button class="voice-search">
+                        <i class="fas fa-microphone"></i>
+                    </button>
                 </div>
-                <!-- Search History Dropdown -->
                 <div class="search-history-dropdown" id="searchHistoryDropdown">
                     <div class="history-header">
-                        <span>Recent searches</span>
-                        <button id="clearHistoryBtn" class="clear-history-btn">Clear all</button>
+                        <span><i class="fas fa-history"></i> Recent searches</span>
+                        <button class="clear-history-btn" id="clearHistoryBtn">Clear all</button>
                     </div>
                     <div id="searchHistoryList"></div>
                 </div>
             </div>
-            <div class="header-actions">
-                <button class="icon-btn" id="accountBtn">
-                    <i class="fas fa-user-circle"></i>
+
+            <div class="header-actions" data-aos="fade-left">
+                <button class="action-btn theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
                 </button>
-                <div class="avatar" id="userAvatar">
-                    <i class="fas fa-user-circle"></i>
+                <button class="action-btn notification-btn" id="notificationBtn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-dot"></span>
+                </button>
+                <div class="user-menu" id="userMenu">
+                    <div class="user-avatar" id="userAvatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-info">
+                            <div class="user-avatar-large" id="dropdownAvatar">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div>
+                                <h4 id="dropdownUserName">Guest User</h4>
+                                <p id="dropdownUserEmail">Sign in to continue</p>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item" id="dropdownProfileBtn">
+                            <i class="fas fa-user"></i> My Profile
+                        </a>
+                        <a href="#" class="dropdown-item" id="dropdownHistoryBtn">
+                            <i class="fas fa-history"></i> Search History
+                        </a>
+                        <a href="#" class="dropdown-item" id="dropdownDownloadsBtn">
+                            <i class="fas fa-download"></i> My Downloads
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item" id="dropdownSettingsBtn">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                        <a href="#" class="dropdown-item logout-item" id="dropdownLogoutBtn">
+                            <i class="fas fa-sign-out-alt"></i> Sign Out
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Navigation Tabs - Play Store Style -->
-    <nav class="nav-tabs">
+    <!-- Navigation -->
+    <nav class="nav-tabs-modern" id="navTabs">
         <div class="tabs-container">
-            <button class="tab active" data-tab="for-you">
-                <i class="fas fa-user"></i> <span>For you</span>
+            <button class="tab-item active" data-tab="for-you">
+                <i class="fas fa-fire"></i>
+                <span>For You</span>
             </button>
-            <button class="tab" data-tab="top-charts">
-                <i class="fas fa-chart-line"></i> <span>Top charts</span>
+            <button class="tab-item" data-tab="top-charts">
+                <i class="fas fa-chart-line"></i>
+                <span>Top Charts</span>
             </button>
-            <button class="tab" data-tab="kids">
-                <i class="fas fa-child"></i> <span>Kids</span>
+            <button class="tab-item" data-tab="games">
+                <i class="fas fa-gamepad"></i>
+                <span>Games</span>
             </button>
-            <button class="tab" data-tab="premium">
-                <i class="fas fa-crown"></i> <span>Premium</span>
+            <button class="tab-item" data-tab="apps">
+                <i class="fas fa-mobile-alt"></i>
+                <span>Apps</span>
             </button>
-            <button class="tab" data-tab="categories">
-                <i class="fas fa-th-large"></i> <span>Categories</span>
+            <button class="tab-item" data-tab="premium">
+                <i class="fas fa-crown"></i>
+                <span>Premium</span>
+                <span class="tab-badge">NEW</span>
+            </button>
+            <button class="tab-item" data-tab="categories">
+                <i class="fas fa-th-large"></i>
+                <span>Categories</span>
             </button>
         </div>
+        <div class="tab-indicator"></div>
     </nav>
 
-    <!-- Auth Modal (Login/Signup) -->
-    <div id="authModal" class="modal-overlay auth-modal">
-        <div class="auth-container">
+    <!-- Auth Modal -->
+    <div class="modal auth-modal" id="authModal">
+        <div class="modal-content glass-effect">
+            <div class="modal-header">
+                <h2>Welcome to BmbApk</h2>
+                <button class="modal-close" id="closeAuthModal">&times;</button>
+            </div>
             <div class="auth-tabs">
-                <button class="auth-tab active" data-auth="login">Sign in</button>
-                <button class="auth-tab" data-auth="signup">Create account</button>
+                <button class="auth-tab active" data-auth="login">Sign In</button>
+                <button class="auth-tab" data-auth="signup">Create Account</button>
             </div>
             
-            <!-- Login Form -->
-            <div id="loginForm" class="auth-form active">
-                <h3>Welcome back</h3>
-                <p class="auth-subtitle">Sign in to continue</p>
-                
-                <div class="google-btn" id="googleLoginBtn">
-                    <i class="fab fa-google"></i>
-                    <span>Continue with Google</span>
+            <div class="auth-form active" id="loginForm">
+                <div class="social-buttons">
+                    <button class="social-btn google-btn" id="googleLoginBtn">
+                        <i class="fab fa-google"></i>
+                        <span>Continue with Google</span>
+                    </button>
+                    <button class="social-btn apple-btn">
+                        <i class="fab fa-apple"></i>
+                        <span>Continue with Apple</span>
+                    </button>
                 </div>
-                
-                <div class="auth-divider">or</div>
-                
-                <div class="input-group">
+                <div class="divider">or</div>
+                <div class="input-field">
                     <i class="fas fa-envelope"></i>
-                    <input type="email" id="loginEmail" placeholder="Email address" required>
+                    <input type="email" id="loginEmail" placeholder="Email address">
                 </div>
-                <div class="input-group">
+                <div class="input-field">
                     <i class="fas fa-lock"></i>
-                    <input type="password" id="loginPassword" placeholder="Password" required>
+                    <input type="password" id="loginPassword" placeholder="Password">
+                    <button class="toggle-password" data-target="loginPassword">
+                        <i class="fas fa-eye"></i>
+                    </button>
                 </div>
-                <button id="loginSubmitBtn" class="auth-submit-btn">Sign in</button>
+                <div class="form-options">
+                    <label class="checkbox">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#" class="forgot-link">Forgot password?</a>
+                </div>
+                <button class="submit-btn" id="loginSubmitBtn">Sign In</button>
                 <p class="auth-footer">Don't have an account? <span class="auth-switch">Create one</span></p>
             </div>
             
-            <!-- Signup Form -->
-            <div id="signupForm" class="auth-form">
-                <h3>Create account</h3>
-                <p class="auth-subtitle">Join BmbApk today</p>
-                
-                <div class="google-btn" id="googleSignupBtn">
-                    <i class="fab fa-google"></i>
-                    <span>Continue with Google</span>
+            <div class="auth-form" id="signupForm">
+                <div class="social-buttons">
+                    <button class="social-btn google-btn" id="googleSignupBtn">
+                        <i class="fab fa-google"></i>
+                        <span>Continue with Google</span>
+                    </button>
                 </div>
-                
-                <div class="auth-divider">or</div>
-                
-                <div class="input-group">
+                <div class="divider">or sign up with email</div>
+                <div class="input-field">
                     <i class="fas fa-user"></i>
-                    <input type="text" id="signupName" placeholder="Full name" required>
+                    <input type="text" id="signupName" placeholder="Full name">
                 </div>
-                <div class="input-group">
+                <div class="input-field">
                     <i class="fas fa-envelope"></i>
-                    <input type="email" id="signupEmail" placeholder="Email address" required>
+                    <input type="email" id="signupEmail" placeholder="Email address">
                 </div>
-                <div class="input-group">
+                <div class="input-field">
                     <i class="fas fa-lock"></i>
-                    <input type="password" id="signupPassword" placeholder="Password" required>
+                    <input type="password" id="signupPassword" placeholder="Password">
+                    <button class="toggle-password" data-target="signupPassword">
+                        <i class="fas fa-eye"></i>
+                    </button>
                 </div>
-                <div class="input-group">
+                <div class="input-field">
                     <i class="fas fa-check-circle"></i>
-                    <input type="password" id="signupConfirmPassword" placeholder="Confirm password" required>
+                    <input type="password" id="signupConfirmPassword" placeholder="Confirm password">
                 </div>
-                <button id="signupSubmitBtn" class="auth-submit-btn">Create account</button>
-                <p class="auth-footer">Already have an account? <span class="auth-switch">Sign in</span></p>
+                <button class="submit-btn" id="signupSubmitBtn">Create Account</button>
+                <p class="auth-footer">Already have an account? <span class="auth-switch">Sign In</span></p>
             </div>
         </div>
     </div>
-    
+
     <!-- Profile Modal -->
-    <div id="profileModal" class="modal-overlay profile-modal">
-        <div class="profile-container">
-            <div class="profile-header">
-                <div class="profile-avatar" id="profileAvatar">
-                    <i class="fas fa-user-circle"></i>
+    <div class="modal profile-modal" id="profileModal">
+        <div class="modal-content glass-effect">
+            <div class="modal-header">
+                <h2>My Profile</h2>
+                <button class="modal-close" id="closeProfileModal">&times;</button>
+            </div>
+            <div class="profile-content">
+                <div class="profile-avatar-section">
+                    <div class="profile-avatar-large" id="profileAvatarLarge">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <button class="change-avatar-btn" id="changeAvatarBtn">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                    <input type="file" id="avatarInput" accept="image/*" style="display: none;">
                 </div>
-                <button class="close-profile" id="closeProfileBtn">&times;</button>
-            </div>
-            <div class="profile-info">
-                <h3 id="profileName">User Name</h3>
-                <p id="profileEmail">user@example.com</p>
-            </div>
-            <div class="profile-actions">
-                <button id="editProfileBtn" class="profile-action-btn">
-                    <i class="fas fa-edit"></i> Edit Profile
-                </button>
-                <button id="logoutBtn" class="profile-action-btn logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
+                <div class="profile-info-section">
+                    <div class="info-field">
+                        <label>Full Name</label>
+                        <div class="info-value" id="profileNameValue">User Name</div>
+                    </div>
+                    <div class="info-field">
+                        <label>Email Address</label>
+                        <div class="info-value" id="profileEmailValue">user@example.com</div>
+                    </div>
+                    <div class="info-field">
+                        <label>Member Since</label>
+                        <div class="info-value" id="profileDateValue">--</div>
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <button class="action-btn-outline" id="editProfileBtn">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                    <button class="action-btn-danger" id="logoutModalBtn">
+                        <i class="fas fa-sign-out-alt"></i> Sign Out
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-    
+
     <!-- Edit Profile Modal -->
-    <div id="editProfileModal" class="modal-overlay edit-profile-modal">
-        <div class="edit-profile-container">
-            <h3>Edit Profile</h3>
-            <div class="edit-avatar" id="editAvatar">
-                <img id="editAvatarImg" src="" alt="Avatar">
-                <button id="changeAvatarBtn"><i class="fas fa-camera"></i></button>
-                <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+    <div class="modal edit-profile-modal" id="editProfileModal">
+        <div class="modal-content glass-effect">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <button class="modal-close" id="closeEditModal">&times;</button>
             </div>
-            <div class="input-group">
-                <i class="fas fa-user"></i>
-                <input type="text" id="editName" placeholder="Full name">
-            </div>
-            <div class="profile-actions">
-                <button id="saveProfileBtn" class="auth-submit-btn">Save Changes</button>
-                <button id="cancelEditBtn" class="cancel-btn">Cancel</button>
+            <div class="edit-profile-content">
+                <div class="edit-avatar-section">
+                    <div class="edit-avatar" id="editAvatar">
+                        <img id="editAvatarImg" src="" alt="Avatar">
+                    </div>
+                    <button class="upload-avatar-btn" id="uploadAvatarBtn">
+                        <i class="fas fa-camera"></i> Change Photo
+                    </button>
+                </div>
+                <div class="input-field">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="editName" placeholder="Full name">
+                </div>
+                <div class="profile-actions">
+                    <button class="submit-btn" id="saveProfileBtn">Save Changes</button>
+                    <button class="cancel-btn" id="cancelEditBtn">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Side Drawer -->
-    <div id="drawer" class="drawer">
+    <div class="drawer" id="drawer">
         <div class="drawer-header">
             <div class="drawer-logo">
-                <i class="fas fa-play-circle"></i>
-                <span>BmbApk</span>
+                <i class="fas fa-download"></i>
+                <span>Bmb<span>Apk</span></span>
             </div>
-            <button id="close-menu" class="close-drawer">
+            <button class="close-drawer" id="closeDrawer">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="drawer-user" id="drawerUser">
-            <i class="fas fa-user-circle"></i>
-            <div>
+            <div class="drawer-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="drawer-user-info">
                 <h4 id="drawerUserName">Guest User</h4>
-                <p id="drawerUserEmail">Sign in for updates</p>
+                <p id="drawerUserEmail">Sign in to continue</p>
             </div>
         </div>
         <ul class="drawer-menu">
-            <li><a href="#" id="drawerProfileBtn"><i class="fas fa-user"></i> My Profile</a></li>
+            <li><a href="#" id="drawerHomeBtn"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="#" id="drawerProfileLink"><i class="fas fa-user"></i> My Profile</a></li>
+            <li><a href="#" id="drawerHistoryLink"><i class="fas fa-history"></i> Search History</a></li>
+            <li><a href="#" id="drawerDownloadsLink"><i class="fas fa-download"></i> My Downloads</a></li>
             <li><a href="#"><i class="fas fa-gamepad"></i> Games</a></li>
             <li><a href="#"><i class="fas fa-mobile-alt"></i> Apps</a></li>
-            <li><a href="#" id="drawerHistoryBtn"><i class="fas fa-history"></i> Search History</a></li>
-            <li><a href="#"><i class="fas fa-download"></i> My Downloads</a></li>
+            <li><a href="#"><i class="fas fa-crown"></i> Premium</a></li>
         </ul>
         <div class="drawer-footer">
             <a href="#"><i class="fas fa-cog"></i> Settings</a>
-            <a href="#"><i class="fas fa-question-circle"></i> Help & feedback</a>
+            <a href="#"><i class="fas fa-question-circle"></i> Help & Feedback</a>
         </div>
     </div>
+    <div class="drawer-overlay" id="drawerOverlay"></div>
 
-    <!-- Overlay for drawer -->
-    <div id="drawer-overlay" class="drawer-overlay"></div>
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Hero Banner -->
+        <section class="hero-banner" data-aos="fade-up">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fas fa-download"></i> Premium APK Downloader
+                </div>
+                <h1>Download <span class="gradient-text">Latest APKs</span> Instantly</h1>
+                <p>Fast, secure, and free downloads for all your favorite apps and games</p>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <i class="fas fa-database"></i>
+                        <span>10,000+ Apps</span>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-bolt"></i>
+                        <span>Fast Download</span>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>100% Safe</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-wave">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+                    <path fill="rgba(76,154,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+                </svg>
+            </div>
+        </section>
 
-    <!-- Main Content (Protected - requires login) -->
-    <main class="main-content" id="mainContent" style="display: none;">
-        <!-- Search Results Section - at TOP -->
+        <!-- Search Results Section -->
         <section class="section" id="searchResultsSection" style="display: none;">
             <div class="section-header">
-                <h2><i class="fas fa-search"></i> Search results</h2>
+                <h2><i class="fas fa-search"></i> Search Results</h2>
+                <button class="clear-search" id="clearSearchBtn">Clear</button>
             </div>
             <div class="apps-grid" id="searchResults"></div>
         </section>
 
         <!-- Recommended Section -->
-        <section class="section">
+        <section class="section" data-aos="fade-up">
             <div class="section-header">
-                <h2>Recommended for you</h2>
-                <a href="#" class="see-all">See all</a>
+                <h2><i class="fas fa-fire"></i> Recommended for You</h2>
+                <a href="#" class="see-all">See All <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="horizontal-scroll" id="recommendedGrid">
-                <div class="loading-spinner-mini">
-                    <i class="fas fa-spinner fa-spin"></i>
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
                 </div>
             </div>
         </section>
 
         <!-- Top Charts Section -->
-        <section class="section">
+        <section class="section" data-aos="fade-up" data-aos-delay="100">
             <div class="section-header">
-                <h2>Top charts</h2>
-                <a href="#" class="see-all">See all</a>
+                <h2><i class="fas fa-chart-line"></i> Top Charts</h2>
+                <a href="#" class="see-all">See All <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="apps-grid" id="topChartsGrid">
-                <div class="loading-spinner-mini">
-                    <i class="fas fa-spinner fa-spin"></i>
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
                 </div>
             </div>
         </section>
 
-        <!-- Trending Apps Grid -->
-        <section class="section">
+        <!-- Trending Section -->
+        <section class="section" data-aos="fade-up" data-aos-delay="200">
             <div class="section-header">
-                <h2>Trending apps</h2>
-                <a href="#" class="see-all">See all</a>
+                <h2><i class="fas fa-trending-up"></i> Trending Now</h2>
+                <a href="#" class="see-all">See All <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="apps-grid" id="trendingGrid">
-                <div class="loading-spinner-mini">
-                    <i class="fas fa-spinner fa-spin"></i>
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
                 </div>
             </div>
         </section>
 
         <!-- Offline Games Section -->
-        <section class="section">
+        <section class="section" data-aos="fade-up" data-aos-delay="300">
             <div class="section-header">
-                <h2>Offline games</h2>
-                <a href="#" class="see-all">See all</a>
+                <h2><i class="fas fa-wifi-slash"></i> Offline Games</h2>
+                <a href="#" class="see-all">See All <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="horizontal-scroll" id="offlineGamesGrid">
-                <div class="loading-spinner-mini">
-                    <i class="fas fa-spinner fa-spin"></i>
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
                 </div>
             </div>
         </section>
     </main>
 
     <!-- Unauthorized Message -->
-    <div id="unauthorizedMessage" class="unauthorized-container" style="display: flex;">
-        <div class="unauthorized-card">
-            <i class="fas fa-lock"></i>
+    <div class="unauthorized-container" id="unauthorizedMessage">
+        <div class="unauthorized-card glass-effect" data-aos="zoom-in">
+            <div class="unauthorized-icon">
+                <i class="fas fa-download"></i>
+            </div>
             <h2>Welcome to BmbApk</h2>
-            <p>Please sign in or create an account to access the app store</p>
-            <button id="getStartedBtn" class="auth-submit-btn">Get Started</button>
+            <p>Sign in to access thousands of apps and games</p>
+            <div class="unauthorized-buttons">
+                <button class="primary-btn" id="getStartedBtn">
+                    <i class="fas fa-rocket"></i> Get Started
+                </button>
+                <button class="secondary-btn" id="learnMoreBtn">
+                    Learn More
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="play-footer" id="footer">
-        <div class="footer-links">
-            <a href="#">About</a>
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
-            <a href="#">Developers</a>
+    <!-- Download Modal -->
+    <div class="modal download-modal" id="downloadModal">
+        <div class="modal-content glass-effect">
+            <div class="modal-header">
+                <div class="app-info">
+                    <div class="app-icon-large" id="downloadAppIcon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div>
+                        <h3 id="downloadAppName">App Name</h3>
+                        <p id="downloadDeveloper">Developer</p>
+                    </div>
+                </div>
+                <button class="modal-close" id="closeDownloadModal">&times;</button>
+            </div>
+            <div class="download-progress">
+                <div class="progress-status">
+                    <span>Downloading...</span>
+                    <span id="downloadPercent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="downloadProgressFill"></div>
+                </div>
+                <div class="progress-details">
+                    <span id="downloadSpeed">0 KB/s</span>
+                    <span id="downloadTime">-- remaining</span>
+                </div>
+            </div>
+            <div class="download-actions">
+                <button class="cancel-download" id="cancelDownloadBtn">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button class="open-download" id="openDownloadBtn" style="display: none;">
+                    <i class="fas fa-folder-open"></i> Open
+                </button>
+            </div>
+            <div class="download-info">
+                <div class="info-row">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Verified by Play Protect</span>
+                </div>
+                <div class="info-row">
+                    <i class="fas fa-ad"></i>
+                    <span>Sponsored</span>
+                </div>
+            </div>
         </div>
-        <p>© 2024 BmbApk - APK Downloader</p>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Footer -->
+    <footer class="footer-modern">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <i class="fas fa-download"></i>
+                    <span>Bmb<span>Apk</span></span>
+                </div>
+                <p>Your trusted source for downloading latest APK files securely and quickly.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#"><i class="fab fa-telegram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Trending</a></li>
+                        <li><a href="#">Categories</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">DMCA</a></li>
+                        <li><a href="#">Disclaimer</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Report Issue</a></li>
+                        <li><a href="#">Request App</a></li>
+                        <li><a href="#">Feedback</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 BmbApk. All rights reserved. Made with <i class="fas fa-heart"></i> for app lovers</p>
+        </div>
     </footer>
 
-    <!-- Environment Variables -->
-    <script>
-        // IMPORTANT: Replace these with your actual Supabase credentials from .env
-        window.ENV = {
-            SUPABASE_URL: 'https://your-project.supabase.co',
-            SUPABASE_ANON_KEY: 'your-anon-key-here'
-        };
-    </script>
-    
-    <!-- Main JavaScript -->
-    <script type="module" src="main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
